@@ -1,0 +1,18 @@
+server:
+  port: 9009
+
+
+spring:
+  application:
+    name: uav-integration-service
+
+
+
+uav:
+  jingan:
+    enable: true
+
+
+logging:
+  level:
+    com.ramble: debug
