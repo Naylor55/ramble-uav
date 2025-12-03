@@ -4,6 +4,7 @@ import com.ramble.uavjingan.properties.JinganProperties;
 import com.ramble.uavjingan.service.UavService;
 import com.ramble.uavjingan.support.AuthenticationSupport;
 import com.ramble.uavjingan.support.DeviceSupport;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationEventPublisher;
@@ -24,14 +25,17 @@ import org.springframework.web.client.RestTemplate;
  */
 
 @Configuration
+@ConditionalOnProperty(name = "uav.jingan.enable", havingValue = "true")
 @EnableConfigurationProperties(JinganProperties.class)
 public class JinganAutoConfiguration {
     @Bean
+    @ConditionalOnMissingBean
     public RestTemplate restTemplate(ClientHttpRequestFactory factory) {
         return new RestTemplate(factory);
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public ClientHttpRequestFactory simpleClientHttpRequestFactory() {
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
         factory.setReadTimeout(150000); // ms
