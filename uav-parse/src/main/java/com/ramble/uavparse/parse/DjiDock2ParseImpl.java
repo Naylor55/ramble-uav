@@ -36,6 +36,11 @@ public class DjiDock2ParseImpl implements TelemetryParser {
     private static final Pattern TIME_PATTERN =
             Pattern.compile("(\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2})");
 
+    /**
+     * 通过分析srt文件中的数据块，确认当前解析器是否支持该格式
+     * @param block
+     * @return
+     */
     @Override
     public boolean supports(String block) {
         // 1. 包含 rel_alt
@@ -48,6 +53,11 @@ public class DjiDock2ParseImpl implements TelemetryParser {
                 && block.lines().anyMatch(l -> l.trim().startsWith("FrameCnt:"));
     }
 
+    /**
+     * 解析srt内容，得到飞行遥测数据
+     * @param block
+     * @return
+     */
     @Override
     public BlockRecord parse(String block) {
         return new BlockRecord(
