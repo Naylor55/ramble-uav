@@ -37,10 +37,10 @@ public class UavParseApplication {
 
         //机场格式
         //List<Path> srtFiles = List.of(Paths.get("D:\\生产环境维护\\重庆\\万盛\\DJI_20251126105825_0001_W.srt"));
-        //List<Path> srtFiles = List.of(Paths.get("D:\\生产环境维护\\天津\\20251209_富康路巡检-2-20251209171419\\20251209_富康路巡检.SRT"));
+        List<Path> srtFiles = List.of(Paths.get("D:\\生产环境维护\\天津\\20251209_富康路巡检-2-20251209171419\\20251209_富康路巡检.SRT"));
 
         //M30T 遥控器录制，无人机sd卡获取的srt
-        List<Path> srtFiles = List.of(Paths.get("D:\\生产环境维护\\黔西\\DJI_20250110150450_0001_S.SRT"));
+        //List<Path> srtFiles = List.of(Paths.get("D:\\生产环境维护\\黔西\\DJI_20250110150450_0001_S.SRT"));
 
         List<BlockRecord> allRecords = new ArrayList<>();
 
@@ -59,13 +59,16 @@ public class UavParseApplication {
     // 解析单个 SRT 文件
     public static List<BlockRecord> parseSrtFile(Path srtFile) throws IOException {
         List<BlockRecord> records = new ArrayList<>();
+        // 为当前文件选择解析器（只需要选择一次）
+        TelemetryParser fileParser = selectParser(srtFile);
+        log.debug("matched_parser: {}", fileParser);
         try (BufferedReader br = Files.newBufferedReader(srtFile)) {
             StringBuilder block = new StringBuilder();
             String line;
             while ((line = br.readLine()) != null) {
                 if (line.trim().isEmpty()) {
                     if (block.length() > 0) {
-                        records.add(parseBlock(block.toString()));
+                        records.add(fileParser.parse(block.toString()));
                         block.setLength(0);
                     }
                 } else {
@@ -73,10 +76,45 @@ public class UavParseApplication {
                 }
             }
             if (block.length() > 0) {
-                records.add(parseBlock(block.toString())); // 处理最后一个 block
+                // 处理最后一个 block
+                records.add(fileParser.parse(block.toString()));
             }
         }
         return records;
+    }
+
+    /**
+     * 为文件选择合适的解析器
+     * @param srtFile
+     * @return
+     * @throws IOException
+     */
+    private static TelemetryParser selectParser(Path srtFile) throws IOException {
+        try (BufferedReader br = Files.newBufferedReader(srtFile)) {
+            String line;
+            StringBuilder firstBlock = new StringBuilder();
+
+            // 读取第一个数据块用于判断文件类型
+            while ((line = br.readLine()) != null) {
+                if (line.trim().isEmpty()) {
+                    if (firstBlock.length() > 0) {
+                        break; // 找到第一个完整的数据块
+                    }
+                } else {
+                    firstBlock.append(line).append('\n');
+                }
+            }
+
+            // 根据第一个数据块选择解析器
+            if (firstBlock.length() > 0) {
+                String firstBlockText = firstBlock.toString();
+                return parsers.stream()
+                        .filter(p -> p.supports(firstBlockText))
+                        .findFirst()
+                        .orElseThrow(() -> new IllegalArgumentException("Unsupported SRT format for file: " + srtFile));
+            }
+        }
+        throw new IllegalArgumentException("Cannot determine parser for empty file: " + srtFile);
     }
 
     // 根据不同格式解析每个 block
