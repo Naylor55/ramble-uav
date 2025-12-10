@@ -1,10 +1,7 @@
 package com.ramble.uavparse;
 
 import com.ramble.uavparse.dto.BlockRecord;
-import com.ramble.uavparse.parse.DjiDock2ParseImpl;
-import com.ramble.uavparse.parse.DjiM30tParseImpl;
-import com.ramble.uavparse.parse.DjiYu2ParseImpl;
-import com.ramble.uavparse.parse.TelemetryParser;
+import com.ramble.uavparse.parse.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -24,6 +21,7 @@ public class UavParseApplication {
     // 解析器列表
     private static final List<TelemetryParser> parsers = List.of(
             new DjiDock2ParseImpl(),
+            new DjiM300ParseImpl(),
             new DjiM30tParseImpl(),
             new DjiYu2ParseImpl()
     );
@@ -37,10 +35,13 @@ public class UavParseApplication {
 
         //机场格式
         //List<Path> srtFiles = List.of(Paths.get("D:\\生产环境维护\\重庆\\万盛\\DJI_20251126105825_0001_W.srt"));
-        List<Path> srtFiles = List.of(Paths.get("D:\\生产环境维护\\天津\\20251209_富康路巡检-2-20251209171419\\20251209_富康路巡检.SRT"));
+        //List<Path> srtFiles = List.of(Paths.get("D:\\生产环境维护\\天津\\20251209_富康路巡检-2-20251209171419\\20251209_富康路巡检.SRT"));
 
         //M30T 遥控器录制，无人机sd卡获取的srt
         //List<Path> srtFiles = List.of(Paths.get("D:\\生产环境维护\\黔西\\DJI_20250110150450_0001_S.SRT"));
+
+        //M300
+        List<Path> srtFiles = List.of(Paths.get("D:\\生产环境维护\\杭州拱墅\\1205_0002_S\\DJI_20251204163651_0002_S.SRT"));
 
         List<BlockRecord> allRecords = new ArrayList<>();
 

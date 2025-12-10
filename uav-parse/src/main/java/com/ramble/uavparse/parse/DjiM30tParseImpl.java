@@ -43,7 +43,8 @@ public class DjiM30tParseImpl implements TelemetryParser {
         // 3. 不包含 Drone:
         return block.contains("rel_alt")
                 && block.contains("gb_yaw")
-                && !block.contains("Drone:");
+                && !block.contains("Drone:")
+                && !block.contains("drone_yaw");
     }
 
     @Override
